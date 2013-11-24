@@ -24,3 +24,27 @@ Origins:
 * Config file
 * code/defaults/Config kwargs
 """
+
+
+class LinkDatabasePath(Variable):
+    cli_arg_name = 'db_path'
+    is_config_kwarg = True
+
+
+class LocalHostingRootPath(Variable):
+    cli_arg_name = 'local_root'
+    is_config_kwarg = True
+
+
+class ServerHost(Variable):
+    cli_arg_name = 'host'
+    is_config_kwarg = True
+
+
+class ServerPort(Variable):
+    cli_arg_name = 'port'
+    is_config_kwarg = True
+
+
+class SecretKey(Variable):
+    env_var_name = 'EROSION_KEY'
