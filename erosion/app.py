@@ -1,17 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
-
-
-_CUR_PATH = os.path.dirname(os.path.abspath(__file__))
-_CLASTIC_PATH = os.path.dirname(os.path.dirname(_CUR_PATH))
-sys.path.append(_CLASTIC_PATH)
-
-try:
-    import clastic
-except ImportError:
-    print "make sure you've got werkzeug and other dependencies installed"
 
 from clastic import Application, POST, redirect
 from clastic.errors import Forbidden
@@ -22,6 +11,7 @@ from clastic.middleware.form import PostDataMiddleware
 from clastic.middleware.cookie import SignedCookieMiddleware
 
 
+from common import _CUR_PATH
 from link_map import LinkMap
 _DEFAULT_LINKS_FILE_PATH = os.path.join(_CUR_PATH, 'links.txt')
 
