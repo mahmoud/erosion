@@ -2,7 +2,8 @@
 
 import common
 
-from strata import Variable, LayerSet, ConfigSpec
+from strata import Variable, Layer, LayerSet, ConfigSpec
+from strata.layers import CLILayer, KwargLayer
 
 """
 Configuration variables:
@@ -48,3 +49,36 @@ class ServerPort(Variable):
 
 class SecretKey(Variable):
     env_var_name = 'EROSION_KEY'
+
+
+VAR_LIST = [LinkDatabasePath, LocalHostingRootPath,
+            ServerHost, ServerPort, SecretKey]
+
+
+class DevDefaultLayer(Layer):
+    def secret_key(self):
+        return 'configmanagementisimportantandhistoricallyhard'
+
+
+_COMMON_LAYERS = [KwargLayer, CLILayer]
+_PROD_LAYERSET = LayerSet('prod', _COMMON_LAYERS)
+PROD_CONFIGSPEC = ConfigSpec(VAR_LIST, _PROD_LAYERSET)
+
+_DEV_LAYERS = _COMMON_LAYERS + [DevDefaultLayer]
+DEV_LAYERSET = LayerSet('dev', _DEV_LAYERS)
+DEV_CONFIGSPEC = ConfigSpec(VAR_LIST, DEV_LAYERSET)
+
+DevConfig = DEV_CONFIGSPEC.make_config()
+
+#import pdb;pdb.set_trace()
+
+dev_config = DevConfig()
+
+
+"""
+Issues
+------
+
+- SecretKey should not be showing up as provided by CLILayer
+- argparser isn't being provided, meaning _get_parsed_arg can't run
+"""
