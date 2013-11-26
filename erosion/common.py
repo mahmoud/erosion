@@ -8,7 +8,7 @@ from os.path import dirname
 _CUR_PATH = os.path.dirname(os.path.abspath(__file__))
 _PROJECTS_PATH = dirname(dirname(_CUR_PATH))
 sys.path.append(_PROJECTS_PATH + '/clastic')
-sys.path.append(_PROJECTS_PATH + '/strata')
+sys.path.insert(0, _PROJECTS_PATH + '/strata')
 
 try:
     import clastic
