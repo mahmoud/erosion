@@ -68,12 +68,14 @@ _DEV_LAYERS = _COMMON_LAYERS + [DevDefaultLayer]
 DEV_LAYERSET = LayerSet('dev', _DEV_LAYERS)
 DEV_CONFIGSPEC = ConfigSpec(VAR_LIST, DEV_LAYERSET)
 
-DevConfig = DEV_CONFIGSPEC.make_config()
+DevConfig = DEV_CONFIGSPEC.make_config(name='DevConfig')
 
 #import pdb;pdb.set_trace()
 
 dev_config = DevConfig()
 
+from pprint import pprint
+pprint(dev_config.results)
 
 """
 Issues
