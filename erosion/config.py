@@ -3,7 +3,7 @@
 import common
 
 from strata import Variable, Layer, LayerSet, ConfigSpec
-from strata.layers import CLILayer, KwargLayer
+from strata.layers import CLILayer, KwargLayer, EnvVarLayer
 
 """
 Configuration variables:
@@ -60,7 +60,7 @@ class DevDefaultLayer(Layer):
         return 'configmanagementisimportantandhistoricallyhard'
 
 
-_COMMON_LAYERS = [KwargLayer, CLILayer]
+_COMMON_LAYERS = [KwargLayer, CLILayer, EnvVarLayer]
 _PROD_LAYERSET = LayerSet('prod', _COMMON_LAYERS)
 PROD_CONFIGSPEC = ConfigSpec(VAR_LIST, _PROD_LAYERSET)
 
