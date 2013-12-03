@@ -7,7 +7,7 @@ import common
 
 from strata import Variable, Layer, LayerSet, ConfigSpec, Provider
 from strata.layers import CLILayer, KwargLayer, EnvVarLayer
-from strata.errors import MissingValue, NotProvidable
+from strata.errors import MissingValue, InvalidValue, NotProvidable
 
 """
 Configuration variables:
@@ -64,10 +64,13 @@ class ProjectJSONConfigLayer(Layer):
     _autoprovided = ['project_json_config']
 
     def project_json_config(self):
+        fn = './config.json'
         try:
-            fh = open('./config.json')
+            fh = open(fn)
         except IOError:
-            raise MissingValue()
+            raise MissingValue('json config file does not exist: %r' % fn)
+        except ValueError as ve:
+            raise InvalidValue('unable to load config file %r: %r' % (fn, ve))
         return json.load(fh)
 
     @classmethod
@@ -113,6 +116,18 @@ class UserJSONConfigLayer(Layer):
 class DevDefaultLayer(Layer):
     def secret_key(self):
         return 'configmanagementisimportantandhistoricallyhard'
+
+    def link_database_path(self):
+        return './links.json'
+
+    def local_hosting_root_path(self):
+        return None
+
+    def server_host(self):
+        return '0.0.0.0'
+
+    def server_port(self):
+        return 5000
 
 
 _COMMON_LAYERS = [KwargLayer, CLILayer, EnvVarLayer,
