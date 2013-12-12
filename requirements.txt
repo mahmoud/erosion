@@ -1,5 +1,6 @@
 -e git+https://github.com/mahmoud/clastic.git#egg=clastic
 -e git+https://github.com/mahmoud/strata.git#egg=strata
+-e git+https://github.com/mahmoud/lithoxyl.git#egg=lithoxyl
 
 Werkzeug==0.9.4
 argparse==1.2.1
