@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from common import _CUR_PATH
 
 from clastic import Application, POST, redirect
 from clastic.errors import Forbidden
@@ -10,8 +11,6 @@ from clastic.middleware import SimpleContextProcessor
 from clastic.middleware.form import PostDataMiddleware
 from clastic.middleware.cookie import SignedCookieMiddleware
 
-
-from common import _CUR_PATH
 from link_map import LinkMap
 _DEFAULT_LINKS_FILE_PATH = os.path.join(_CUR_PATH, 'links.txt')
 
