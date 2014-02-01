@@ -61,47 +61,6 @@ VAR_LIST = [LinkDatabasePath, LocalHostingRootPath,
             ServerHost, ServerPort, SecretKey]
 
 
-class JSONConfigLayer(Layer):
-    _prefix = 'project_'
-    _autoprovided = ['project_json_config']
-    _prefixed = ['json_config']
-
-    def project_json_config(self):
-        fn = './config.json'
-        try:
-            fh = open(fn)
-        except IOError:
-            raise MissingValue('json config file does not exist: %r' % fn)
-        except ValueError as ve:
-            raise InvalidValue('unable to load config file %r: %r' % (fn, ve))
-        return json.load(fh)
-
-    @classmethod
-    def _get_provider(cls, var):
-        try:
-            return super(JSONConfigLayer, cls)._get_provider(var)
-        except NotProvidable as npe:
-            pass
-        json_config_key = getattr(var, 'json_config_key', None)
-        if not json_config_key:
-            raise npe
-
-        prefixed_json_config_name = cls._prefix + 'json_config'
-
-        def _get_json_value(json_config):
-            return json_config[json_config_key]
-
-        def _get_json_value_prefixed(**kwargs):
-            json_config = kwargs.pop(prefixed_json_config_name)
-            if kwargs:
-                raise TypeError('unexpected keyword aguments: %r' % kwargs)
-            return _get_json_value(json_config=json_config)
-        new_argspec = ArgSpec((prefixed_json_config_name,), None, None, ())
-        _get_json_value_prefixed._argspec = new_argspec
-
-        return Provider(cls, var.name, _get_json_value_prefixed)
-
-
 class ProjectJSONConfigLayer(Layer):
     _autoprovided = ['project_json_config']
 
@@ -173,7 +132,7 @@ class DevDefaultLayer(Layer):
 
 
 _COMMON_LAYERS = [KwargLayer, CLILayer, EnvVarLayer,
-                  JSONConfigLayer, UserJSONConfigLayer]
+                  ProjectJSONConfigLayer, UserJSONConfigLayer]
 _PROD_LAYERSET = LayerSet('prod', _COMMON_LAYERS)
 PROD_CONFIGSPEC = ConfigSpec(VAR_LIST, _PROD_LAYERSET)
 
@@ -183,12 +142,15 @@ DEV_CONFIGSPEC = ConfigSpec(VAR_LIST, DEV_LAYERSET)
 
 DevConfig = DEV_CONFIGSPEC.make_config(name='DevConfig')
 
-#import pdb;pdb.set_trace()
 
-dev_config = DevConfig()
+if __name__ == '__main__':
+    #import pdb;pdb.set_trace()
+    dev_config = DevConfig()
 
-from pprint import pprint
-pprint(dev_config.results)
+    from pprint import pprint
+    pprint(dev_config.results)
+    import pdb;pdb.set_trace()
+
 
 """
 Issues
