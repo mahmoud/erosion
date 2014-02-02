@@ -92,6 +92,10 @@ class LinkMap(object):
         entries = _load_entries_from_file(path)
         self.link_map = OrderedDict([(e.alias, e) for e in entries])
 
+    def __repr__(self):
+        cn = self.__class__.__name__
+        return '%s(%r)' % (cn, self.path)
+
     @synchronized(LOCK)
     def add_entry(self, target, alias=None, expiry=None, max_count=None):
         next_id = self._get_next_id()

@@ -3,12 +3,13 @@
 import os
 import json
 
-import common
+from common import _CUR_PATH
+_DEFAULT_LINKS_FILE_PATH = os.path.join(_CUR_PATH, 'links.txt')
+
 
 from strata import Variable, Layer, LayerSet, ConfigSpec, Provider
 from strata.layers import CLILayer, KwargLayer, EnvVarLayer
 from strata.errors import MissingValue, InvalidValue, NotProvidable
-from strata.utils import ArgSpec
 
 """
 Configuration variables:
@@ -30,6 +31,10 @@ Origins:
 * Config file
 * code/defaults/Config kwargs
 """
+
+
+class HostURL(Variable):
+    name = 'host_url'
 
 
 class LinkDatabasePath(Variable):
@@ -119,7 +124,7 @@ class DevDefaultLayer(Layer):
         return 'configmanagementisimportantandhistoricallyhard'
 
     def link_database_path(self):
-        return './links.json'
+        return _DEFAULT_LINKS_FILE_PATH
 
     def local_hosting_root_path(self):
         return None
@@ -130,11 +135,16 @@ class DevDefaultLayer(Layer):
     def server_port(self):
         return 5000
 
+    def host_url(self, server_host, server_port):
+        return '%s:%s/' % (server_host, server_port)
+
 
 _COMMON_LAYERS = [KwargLayer, CLILayer, EnvVarLayer,
                   ProjectJSONConfigLayer, UserJSONConfigLayer]
 _PROD_LAYERSET = LayerSet('prod', _COMMON_LAYERS)
 PROD_CONFIGSPEC = ConfigSpec(VAR_LIST, _PROD_LAYERSET)
+
+ProdConfig = PROD_CONFIGSPEC.make_config(name='ProdConfig')
 
 _DEV_LAYERS = _COMMON_LAYERS + [DevDefaultLayer]
 DEV_LAYERSET = LayerSet('dev', _DEV_LAYERS)
@@ -150,12 +160,3 @@ if __name__ == '__main__':
     from pprint import pprint
     pprint(dev_config.results)
     import pdb;pdb.set_trace()
-
-
-"""
-Issues
-------
-
-- SecretKey should not be showing up as provided by CLILayer
-- argparser isn't being provided, meaning _get_parsed_arg can't run
-"""

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 from common import _CUR_PATH
 
 from clastic import Application, POST, redirect
@@ -12,7 +11,9 @@ from clastic.middleware.form import PostDataMiddleware
 from clastic.middleware.cookie import SignedCookieMiddleware
 
 from link_map import LinkMap
-_DEFAULT_LINKS_FILE_PATH = os.path.join(_CUR_PATH, 'links.txt')
+from config import DevConfig, ProdConfig
+
+DEV_MODE = True
 
 
 def home(link_map, cookie):
@@ -70,9 +71,8 @@ def use_entry(link_map, alias, request, local_static_app=None):
         return redirect(target, code=301)
 
 
-def create_app(link_list_path=None, local_root=None, host_url=None,
+def create_app(link_list_path, local_root=None, host_url=None,
                secret_key=None):
-    link_list_path = link_list_path or _DEFAULT_LINKS_FILE_PATH
     link_map = LinkMap(link_list_path)
     local_static_app = None
     if local_root:
@@ -100,16 +100,22 @@ def create_app(link_list_path=None, local_root=None, host_url=None,
     scp = SimpleContextProcessor('local_root', 'full_host_url')
 
     arf = AshesRenderFactory(_CUR_PATH, keep_whitespace=False)
-    app = Application(routes, resources, arf, [scm, scp])
+    app = Application(routes, resources, [scm, scp], arf)
     return app
 
 
-def main():
-    secret_key = 'configurationmanagementisimportant'
-    secret_key += os.getenv('EROSION_KEY') or 'really'
-    app = create_app(local_root='/tmp/', secret_key=secret_key)
+def main(config):
+    app = create_app(link_list_path=config.link_database_path,
+                     local_root=config.local_hosting_root_path,
+                     secret_key=config.secret_key,
+                     host_url=config._result_map.get('host_url'))
+
     app.serve(threaded=True)
 
 
 if __name__ == '__main__':
-    main()
+    if DEV_MODE:
+        config = DevConfig()
+    else:
+        config = ProdConfig()
+    main(config)
