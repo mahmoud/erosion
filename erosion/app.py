@@ -71,18 +71,18 @@ def use_entry(link_map, alias, request, local_static_app=None):
         return redirect(target, code=301)
 
 
-def create_app(link_list_path, local_root=None, host_url=None,
-               secret_key=None):
-    link_map = LinkMap(link_list_path)
+def create_app(config):
+    link_map = LinkMap(config.link_database_path)
     local_static_app = None
+    local_root = config.local_hosting_root_path
     if local_root:
         local_static_app = StaticApplication(local_root)
-    host_url = (host_url or 'localhost:5000').rstrip('/') + '/'
-    full_host_url = 'http://' + host_url
+
+    full_host_url = 'http://' + config.host_url
     resources = {'link_map': link_map,
                  'local_root': local_root,
                  'local_static_app': local_static_app,
-                 'host_url': host_url,
+                 'host_url': config.host_url,
                  'full_host_url': full_host_url}
 
     pdm = PostDataMiddleware({'target_url': unicode,
@@ -96,7 +96,7 @@ def create_app(link_list_path, local_root=None, host_url=None,
     routes = [('/', home, 'home.html'),
               submit_route,
               ('/<alias>', use_entry)]
-    scm = SignedCookieMiddleware(secret_key=secret_key)
+    scm = SignedCookieMiddleware(secret_key=config.secret_key)
     scp = SimpleContextProcessor('local_root', 'full_host_url')
 
     arf = AshesRenderFactory(_CUR_PATH, keep_whitespace=False)
@@ -105,11 +105,7 @@ def create_app(link_list_path, local_root=None, host_url=None,
 
 
 def main(config):
-    app = create_app(link_list_path=config.link_database_path,
-                     local_root=config.local_hosting_root_path,
-                     secret_key=config.secret_key,
-                     host_url=config._result_map.get('host_url'))
-
+    app = create_app(config)
     app.serve(threaded=True)
 
 

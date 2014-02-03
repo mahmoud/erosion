@@ -35,6 +35,8 @@ Origins:
 
 class HostURL(Variable):
     name = 'host_url'
+    cli_arg_name = 'host_url'
+    is_config_kwarg = True
 
 
 class LinkDatabasePath(Variable):
@@ -63,7 +65,7 @@ class SecretKey(Variable):
 
 
 VAR_LIST = [LinkDatabasePath, LocalHostingRootPath,
-            ServerHost, ServerPort, SecretKey]
+            ServerHost, ServerPort, HostURL, SecretKey]
 
 
 class ProjectJSONConfigLayer(Layer):
