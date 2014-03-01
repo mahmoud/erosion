@@ -6,7 +6,6 @@ import json
 from common import _CUR_PATH
 _DEFAULT_LINKS_FILE_PATH = os.path.join(_CUR_PATH, 'links.txt')
 
-
 from strata import Variable, Layer, LayerSet, ConfigSpec, Provider
 from strata.layers import CLILayer, KwargLayer, EnvVarLayer
 from strata.errors import MissingValue, InvalidValue, NotProvidable
@@ -156,9 +155,17 @@ DevConfig = DEV_CONFIGSPEC.make_config(name='DevConfig')
 
 
 if __name__ == '__main__':
+    import os, sys
+    sys.path.append(os.path.expanduser('~/projects/boltons'))
+    from boltons.debugutils import pdb_on_signal
+    pdb_on_signal()
+
     #import pdb;pdb.set_trace()
     dev_config = DevConfig()
 
     from pprint import pprint
-    pprint(dev_config.results)
+    pprint(dev_config)
+    pprint(dev_config._pstate.name_value_map)
+
+    ctable = dev_config._config_proc.to_table()
     import pdb;pdb.set_trace()
