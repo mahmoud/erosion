@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
 
 from common import _CUR_PATH
 _DEFAULT_LINKS_FILE_PATH = os.path.join(_CUR_PATH, 'links.txt')
 
-from strata import Variable, Layer, LayerSet, ConfigSpec, Provider
+from strata import Variable, Layer, LayerSet, ConfigSpec
 from strata.layers import CLILayer, KwargLayer, EnvVarLayer
-from strata.errors import MissingValue, InvalidValue, NotProvidable
 
 """
 Configuration variables:
@@ -67,59 +65,6 @@ VAR_LIST = [LinkDatabasePath, LocalHostingRootPath,
             ServerHost, ServerPort, HostURL, SecretKey]
 
 
-class ProjectJSONConfigLayer(Layer):
-    _autoprovided = ['project_json_config']
-
-    def project_json_config(self):
-        fn = './config.json'
-        try:
-            fh = open(fn)
-        except IOError:
-            raise MissingValue('json config file does not exist: %r' % fn)
-        except ValueError as ve:
-            raise InvalidValue('unable to load config file %r: %r' % (fn, ve))
-        return json.load(fh)
-
-    @classmethod
-    def _get_provider(cls, var):
-        try:
-            return super(ProjectJSONConfigLayer, cls)._get_provider(var)
-        except NotProvidable as npe:
-            pass
-        json_config_key = getattr(var, 'json_config_key', None)
-        if not json_config_key:
-            raise npe
-
-        def _get_project_json_value(project_json_config):
-            return project_json_config[json_config_key]
-        return Provider(cls, var.name, _get_project_json_value)
-
-
-class UserJSONConfigLayer(Layer):
-    _autoprovided = ['user_json_config']
-
-    def user_json_config(self):
-        try:
-            fh = open(os.path.expanduser('~/.erosion_config'))
-        except IOError:
-            raise MissingValue()
-        return json.load(fh)
-
-    @classmethod
-    def _get_provider(cls, var):
-        try:
-            return super(UserJSONConfigLayer, cls)._get_provider(var)
-        except NotProvidable as npe:
-            pass
-        json_config_key = getattr(var, 'json_config_key', None)
-        if not json_config_key:
-            raise npe
-
-        def _get_user_json_value(user_json_config):
-            return user_json_config[json_config_key]
-        return Provider(cls, var.name, _get_user_json_value)
-
-
 class DevDefaultLayer(Layer):
     def secret_key(self):
         return 'configmanagementisimportantandhistoricallyhard'
@@ -140,8 +85,7 @@ class DevDefaultLayer(Layer):
         return '%s:%s/' % (server_host, server_port)
 
 
-_COMMON_LAYERS = [KwargLayer, CLILayer, EnvVarLayer,
-                  ProjectJSONConfigLayer, UserJSONConfigLayer]
+_COMMON_LAYERS = [KwargLayer, CLILayer, EnvVarLayer]
 _PROD_LAYERSET = LayerSet('prod', _COMMON_LAYERS)
 PROD_CONFIGSPEC = ConfigSpec(VAR_LIST, _PROD_LAYERSET)
 
